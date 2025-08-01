@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Turnover Report</title>
+
+</head>
+<body>
+    <h1>Turnover Report</h1>
+
+    <form onsubmit="fetchReport(event)">
+        <label for="from">From:</label>
+        <input type="date" id="from" name="from" value="2009-11-01">
+        <label for="to">To:</label>
+        <input type="date" id="to" name="to" value="2009-11-30">
+        <button type="submit">Get Report</button>
+    </form>
+
+    <div id="report-output"></div>
+
+    <script>
+        async function fetchReport(event) {
+            event.preventDefault();
+            const from = document.getElementById('from').value;
+            const to = document.getElementById('to').value;
+
+            const res = await fetch(`/api/report/?from=${from}&to=${to}`);
+            const data = await res.json();
+
+            const output = document.getElementById('report-output');
+            output.innerHTML = '';
+
+            for (const [period, values] of Object.entries(data)) {
+                const incomes = Object.entries(values.incomes)
+                    .map(([curr, amt]) => `<li>${curr}: ${amt}</li>`).join('');
+                const expenses = Object.entries(values.expenses)
+                    .map(([curr, amt]) => `<li>${curr}: ${amt}</li>`).join('');
+                    
+                output.innerHTML += `
+                    <h3>${period}</h3>
+                    <strong>Incomes:</strong><ul>${incomes}</ul>
+                    <strong>Expenses:</strong><ul>${expenses}</ul>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
